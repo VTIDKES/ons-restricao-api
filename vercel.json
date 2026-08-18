@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    {
+      "path": "/api/cron/informativo",
+      "schedule": "0 23 * * *"
+    }
+  ],
+  "functions": {
+    "main.py": {
+      "maxDuration": 120,
+      "memory": 2048
+    }
+  }
+}
