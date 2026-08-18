@@ -217,9 +217,15 @@ function localizar(usina) {
 function renderizarMapa(ap) {
   if (!mapa) {
     mapa = L.map("mapa").setView([-14.5, -47.5], 4);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      attribution: "&copy; OpenStreetMap &copy; CARTO",
-      subdomains: "abcd",
+    const esri = "https://server.arcgisonline.com/ArcGIS/rest/services";
+    L.tileLayer(`${esri}/World_Imagery/MapServer/tile/{z}/{y}/{x}`, {
+      attribution: "Imagens &copy; Esri, Maxar, Earthstar Geographics",
+      maxZoom: 19,
+      maxNativeZoom: 18,
+    }).addTo(mapa);
+    L.tileLayer(`${esri}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, {
+      maxZoom: 19,
+      maxNativeZoom: 18,
     }).addTo(mapa);
     camadaMarcadores = L.layerGroup().addTo(mapa);
   }

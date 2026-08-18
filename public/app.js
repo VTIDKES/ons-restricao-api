@@ -38,13 +38,44 @@ async function carregarCatalogo() {
   }
 }
 
-function montarMapa() {
-  mapa = L.map("mapa", { zoomControl: true }).setView([-14.5, -47.5], 4);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services";
+
+// Bases sem chave de API. O satelite vem do World Imagery da Esri, com a
+// camada de rotulos por cima para nao perder nome de cidade e divisa estadual.
+function camadasBase() {
+  const satelite = L.layerGroup([
+    L.tileLayer(`${ESRI}/World_Imagery/MapServer/tile/{z}/{y}/{x}`, {
+      attribution: "Imagens &copy; Esri, Maxar, Earthstar Geographics",
+      maxZoom: 19,
+      maxNativeZoom: 18,
+    }),
+    L.tileLayer(`${ESRI}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`, {
+      maxZoom: 19,
+      maxNativeZoom: 18,
+    }),
+  ]);
+
+  const relevo = L.tileLayer(`${ESRI}/World_Topo_Map/MapServer/tile/{z}/{y}/{x}`, {
+    attribution: "&copy; Esri, USGS, NOAA",
+    maxZoom: 19,
+    maxNativeZoom: 18,
+  });
+
+  const ruas = L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
     attribution: "&copy; OpenStreetMap &copy; CARTO",
     subdomains: "abcd",
     maxZoom: 19,
-  }).addTo(mapa);
+  });
+
+  return { "Satélite": satelite, "Relevo": relevo, "Mapa": ruas };
+}
+
+function montarMapa() {
+  mapa = L.map("mapa", { zoomControl: true }).setView([-14.5, -47.5], 4);
+  const bases = camadasBase();
+  bases["Satélite"].addTo(mapa);
+  L.control.layers(bases, null, { collapsed: true }).addTo(mapa);
+  L.control.scale({ imperial: false }).addTo(mapa);
   camadaMarcadores = L.layerGroup().addTo(mapa);
 }
 

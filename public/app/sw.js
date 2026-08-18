@@ -7,7 +7,7 @@
 //      a checagem enquanto estiver em primeiro plano;
 //   3. exibir notificacao local quando o corte ultrapassar o limite.
 
-const VERSAO = "v1";
+const VERSAO = "v2";
 const CACHE = `restricao-ons-${VERSAO}`;
 const ESTATICOS = [
   "/app/",
@@ -41,6 +41,9 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (url.pathname.startsWith("/api/")) return; // API sempre da rede
+  // Tiles de satelite sao pesados e ja tem cache HTTP proprio: deixa passar
+  // direto, senao o cache do app cresce sem limite.
+  if (url.hostname.endsWith("arcgisonline.com") || url.hostname.endsWith("cartocdn.com")) return;
   e.respondWith(
     caches.match(e.request).then((r) => r || fetch(e.request).catch(() => r))
   );
