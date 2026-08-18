@@ -238,6 +238,62 @@ def _por_usina(tabela: pa.Table, tem: dict[str, str]) -> list[dict]:
     return saida
 
 
+def _serie_semi_horaria(tabela: pa.Table, tem: dict[str, str], alvos: list[str]) -> list[dict]:
+    """
+    Serie semi-horaria (48 pontos/dia) por conjunto de usinas monitoradas.
+
+    Se `alvos` vier vazio, agrega o SIN inteiro. Cada ponto traz corte,
+    geracao e referencia em MW medios do intervalo.
+    """
+    if alvos:
+        nomes = pc.utf8_upper(pc.cast(tabela["usina"], pa.string()))
+        mask = None
+        for alvo in alvos:
+            m = pc.match_substring(nomes, alvo.strip().upper())
+            mask = m if mask is None else pc.or_kleene(mask, m)
+        if mask is not None:
+            tabela = tabela.filter(mask)
+    if tabela.num_rows == 0:
+        return []
+
+    corte = _corte_mw(tabela)
+    t = pa.table({
+        "instante": pc.cast(tabela["instante"], pa.string()),
+        "corte_mw": corte,
+        "geracao_mw": pc.cast(tabela["geracao"], pa.float64()),
+        "referencia_mw": pc.cast(tabela["referencia"], pa.float64()),
+    })
+    agg = t.group_by(["instante"]).aggregate([
+        ("corte_mw", "sum"),
+        ("geracao_mw", "sum"),
+        ("referencia_mw", "sum"),
+    ]).to_pylist()
+    agg.sort(key=lambda p: p["instante"])
+    return [
+        {
+            "instante": p["instante"],
+            "corte_mw": round(p["corte_mw_sum"] or 0.0, 2),
+            "geracao_mw": round(p["geracao_mw_sum"] or 0.0, 2),
+            "referencia_mw": round(p["referencia_mw_sum"] or 0.0, 2),
+        }
+        for p in agg
+    ]
+
+
+def apurar_serie(fonte: str, dia: date, filtro: list[str] | None = None) -> dict:
+    """Serie semi-horaria do dia, opcionalmente recortada por trecho de nome."""
+    tabela, idx = ler_dia(fonte, dia)
+    alvos = [t.strip() for t in (filtro or []) if t.strip()]
+    pontos = _serie_semi_horaria(tabela, idx, alvos)
+    return {
+        "fonte": fonte,
+        "rotulo": FONTES[fonte]["rotulo"],
+        "data": dia.isoformat(),
+        "recorte": alvos,
+        "pontos": pontos,
+    }
+
+
 def apurar_dia(fonte: str, dia: date, filtro: list[str] | None = None) -> dict:
     """
     Apuracao do dia, pronta para cachear e servir.

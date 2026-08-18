@@ -11,12 +11,23 @@ import logging
 import os
 from datetime import date, datetime, timedelta
 
+from pathlib import Path
+
 from fastapi import FastAPI, Header, HTTPException, Query
-from fastapi.responses import PlainTextResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.staticfiles import StaticFiles
 
 import informativo
 import store
-from ons import FONTES, ONSIndisponivel, apurar_dia, schema_do_mes, ultimo_dia_disponivel
+from ons import (
+    FONTES,
+    ONSIndisponivel,
+    apurar_dia,
+    apurar_serie,
+    schema_do_mes,
+    ultimo_dia_disponivel,
+)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -36,6 +47,13 @@ app = FastAPI(
         "apos a publicacao; nao servem como alarme em tempo real."
     ),
     version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET"],
+    allow_headers=["*"],
 )
 
 
@@ -125,6 +143,34 @@ def texto_informativo(
     return informativo.montar_texto(apuracoes)
 
 
+@app.get("/api/serie")
+def serie(
+    fonte: str = Query("eolica"),
+    data: str | None = Query(None, description="AAAA-MM-DD, padrao D-2"),
+    usina: str | None = Query(None, description="trecho do nome, separado por virgula"),
+):
+    """Serie semi-horaria do dia, opcionalmente recortada por usinas."""
+    if fonte not in FONTES:
+        raise HTTPException(400, f"fonte deve ser uma de {list(FONTES)}")
+    filtro = [u for u in (usina or "").split(",") if u.strip()]
+    try:
+        return apurar_serie(fonte, _parse_data(data), filtro)
+    except ONSIndisponivel as e:
+        raise HTTPException(503, str(e))
+
+
+@app.get("/api/ultimo_dia")
+def ultimo_dia(fonte: str = Query("eolica")):
+    """Ultimo dia com apuracao publicada, andando para tras a partir de hoje."""
+    if fonte not in FONTES:
+        raise HTTPException(400, f"fonte deve ser uma de {list(FONTES)}")
+    try:
+        dia = ultimo_dia_disponivel(fonte, date.today() - timedelta(days=1))
+        return {"fonte": fonte, "data": dia.isoformat()}
+    except ONSIndisponivel as e:
+        raise HTTPException(503, str(e))
+
+
 @app.get("/api/cron/informativo")
 def cron_informativo(authorization: str | None = Header(None)):
     """
@@ -149,3 +195,18 @@ def cron_informativo(authorization: str | None = Header(None)):
     texto = informativo.montar_texto(apuracoes)
     envio = informativo.enviar(texto, apuracoes)
     return {"ok": True, "data": apuracoes[0]["data"], "envio": envio, "texto": texto}
+
+
+# Estaticos (dashboard web e PWA). Precisa ficar por ultimo para nao capturar
+# as rotas /api/*.
+_PUBLIC = Path(__file__).parent / "public"
+if _PUBLIC.exists():
+    @app.get("/")
+    def raiz():
+        return FileResponse(_PUBLIC / "index.html")
+
+    @app.get("/app")
+    def app_root():
+        return FileResponse(_PUBLIC / "app" / "index.html")
+
+    app.mount("/", StaticFiles(directory=_PUBLIC, html=True), name="public")

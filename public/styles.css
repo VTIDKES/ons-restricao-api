@@ -1,0 +1,376 @@
+:root {
+  --bg: #0b1220;
+  --bg-2: #111a2e;
+  --card: #17223b;
+  --card-2: #1c2947;
+  --linha: #263353;
+  --texto: #e5edff;
+  --texto-fraco: #92a2c9;
+  --acento: #38bdf8;
+  --acento-2: #22c55e;
+  --alerta: #f97316;
+  --erro: #ef4444;
+  --sombra: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--texto);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--acento);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 28px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--linha);
+}
+
+.marca {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.marca h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.marca p {
+  margin: 0;
+  color: var(--texto-fraco);
+  font-size: 13px;
+}
+
+.raio {
+  font-size: 28px;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.6));
+}
+
+.acoes {
+  display: flex;
+  gap: 10px;
+}
+
+.botao {
+  background: var(--acento);
+  color: #0b1220;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+  transition: transform 0.05s ease, background 0.15s ease;
+}
+
+.botao:hover {
+  background: #7dd3fc;
+}
+
+.botao:active {
+  transform: translateY(1px);
+}
+
+.botao.secundario {
+  background: transparent;
+  color: var(--texto);
+  border: 1px solid var(--linha);
+}
+
+.botao.secundario:hover {
+  background: var(--card);
+  text-decoration: none;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: end;
+  padding: 20px 28px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--linha);
+}
+
+.filtros label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--texto-fraco);
+}
+
+.filtros select,
+.filtros input {
+  background: var(--card);
+  color: var(--texto);
+  border: 1px solid var(--linha);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  min-width: 200px;
+}
+
+.filtros input[type="date"] {
+  color-scheme: dark;
+}
+
+.status {
+  color: var(--texto-fraco);
+  font-size: 13px;
+}
+
+.status.erro {
+  color: var(--erro);
+}
+
+.painel {
+  padding: 24px 28px 40px;
+}
+
+.resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.cartao {
+  background: var(--card);
+  border: 1px solid var(--linha);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: var(--sombra);
+}
+
+.cartao .rotulo {
+  font-size: 12px;
+  color: var(--texto-fraco);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cartao strong {
+  font-size: 28px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cartao .unidade {
+  font-size: 13px;
+  color: var(--texto-fraco);
+}
+
+.origem {
+  font-size: 14px;
+  word-break: break-all;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mapa-caixa {
+  background: var(--card);
+  border: 1px solid var(--linha);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--sombra);
+}
+
+#mapa {
+  width: 100%;
+  height: 520px;
+}
+
+.lateral {
+  background: var(--card);
+  border: 1px solid var(--linha);
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: var(--sombra);
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.lateral h2 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  color: var(--texto-fraco);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.lista-top {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lista-top li {
+  background: var(--card-2);
+  border: 1px solid var(--linha);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px;
+  cursor: pointer;
+  transition: border-color 0.1s ease;
+}
+
+.lista-top li:hover {
+  border-color: var(--acento);
+}
+
+.lista-top .nome {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.lista-top .meta {
+  color: var(--texto-fraco);
+  font-size: 12px;
+}
+
+.lista-top .valor {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--alerta);
+  align-self: center;
+}
+
+.grafico-caixa {
+  background: var(--card);
+  border: 1px solid var(--linha);
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: var(--sombra);
+}
+
+.grafico-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.grafico-cabecalho h2 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--texto-fraco);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.grafico-cabecalho p {
+  margin: 0;
+  color: var(--texto-fraco);
+  font-size: 12px;
+}
+
+#grafico {
+  width: 100%;
+  height: 360px;
+  background: var(--card-2);
+  border-radius: 8px;
+}
+
+.legenda {
+  display: flex;
+  gap: 18px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--texto-fraco);
+}
+
+.legenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legenda i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.rodape {
+  padding: 20px 28px;
+  color: var(--texto-fraco);
+  font-size: 12px;
+  text-align: center;
+  border-top: 1px solid var(--linha);
+  background: var(--bg-2);
+}
+
+/* Marcadores no mapa */
+.pin {
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.leaflet-popup-content-wrapper {
+  background: var(--card);
+  color: var(--texto);
+  border: 1px solid var(--linha);
+}
+
+.leaflet-popup-tip {
+  background: var(--card);
+}
+
+.leaflet-popup-content h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.leaflet-popup-content p {
+  margin: 2px 0;
+  font-size: 13px;
+  color: var(--texto-fraco);
+}
+
+.leaflet-popup-content strong {
+  color: var(--alerta);
+}

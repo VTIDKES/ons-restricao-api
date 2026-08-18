@@ -9,7 +9,8 @@
   "functions": {
     "main.py": {
       "maxDuration": 120,
-      "memory": 2048
+      "memory": 2048,
+      "includeFiles": "public/**"
     }
   }
 }
