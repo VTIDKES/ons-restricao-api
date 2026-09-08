@@ -1,0 +1,10 @@
+apiVersion: 1
+
+datasources:
+  - name: Infinity - Restricao ONS
+    type: yesoreyeram-infinity-datasource
+    uid: infinity-restricao-ons
+    access: proxy
+    isDefault: true
+    jsonData:
+      datasource_mode: advanced

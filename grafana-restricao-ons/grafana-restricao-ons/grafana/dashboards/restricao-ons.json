@@ -1,0 +1,229 @@
+{
+  "id": null,
+  "uid": "restricao-ons",
+  "title": "Restricao de Geracao (ONS)",
+  "tags": ["ons", "restricao", "curtailment", "energia"],
+  "timezone": "browser",
+  "editable": true,
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "",
+  "time": { "from": "now-7d", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "api_base",
+        "type": "textbox",
+        "label": "URL base da API",
+        "query": "http://api:8000",
+        "current": { "text": "http://api:8000", "value": "http://api:8000" }
+      },
+      {
+        "name": "fonte",
+        "type": "custom",
+        "label": "Fonte",
+        "query": "eolica,fotovoltaica",
+        "current": { "text": "eolica", "value": "eolica" },
+        "options": [
+          { "text": "eolica", "value": "eolica", "selected": true },
+          { "text": "fotovoltaica", "value": "fotovoltaica", "selected": false }
+        ]
+      },
+      {
+        "name": "data",
+        "type": "textbox",
+        "label": "Data (AAAA-MM-DD, vazio = D-2)",
+        "query": "",
+        "current": { "text": "", "value": "" }
+      },
+      {
+        "name": "usina",
+        "type": "textbox",
+        "label": "Filtro de usina (trecho do nome, vazio = padrao da API)",
+        "query": "",
+        "current": { "text": "", "value": "" }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Corte total no SIN (MWh)",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "infinity-restricao-ons" },
+      "fieldConfig": { "defaults": { "unit": "none", "decimals": 1 }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "json",
+          "source": "url",
+          "format": "table",
+          "parser": "backend",
+          "url": "$api_base/api/restricao?fonte=$fonte&data=$data&usina=$usina",
+          "url_options": { "method": "GET" },
+          "root_selector": "total",
+          "columns": [
+            { "selector": "corte_mwh", "text": "corte_mwh", "type": "number" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Perda sobre a referencia (%)",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "infinity-restricao-ons" },
+      "fieldConfig": { "defaults": { "unit": "percent", "decimals": 2 }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "json",
+          "source": "url",
+          "format": "table",
+          "parser": "backend",
+          "url": "$api_base/api/restricao?fonte=$fonte&data=$data&usina=$usina",
+          "url_options": { "method": "GET" },
+          "root_selector": "total",
+          "columns": [
+            { "selector": "perda_pct", "text": "perda_pct", "type": "number" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Usinas com restricao",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "infinity-restricao-ons" },
+      "fieldConfig": { "defaults": { "unit": "none", "decimals": 0 }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "json",
+          "source": "url",
+          "format": "table",
+          "parser": "backend",
+          "url": "$api_base/api/restricao?fonte=$fonte&data=$data&usina=$usina",
+          "url_options": { "method": "GET" },
+          "root_selector": "total",
+          "columns": [
+            { "selector": "usinas_com_restricao", "text": "usinas_com_restricao", "type": "number" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Usinas apuradas no SIN",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "infinity-restricao-ons" },
+      "fieldConfig": { "defaults": { "unit": "none", "decimals": 0 }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "json",
+          "source": "url",
+          "format": "table",
+          "parser": "backend",
+          "url": "$api_base/api/restricao?fonte=$fonte&data=$data&usina=$usina",
+          "url_options": { "method": "GET" },
+          "root_selector": "total",
+          "columns": [
+            { "selector": "usinas_total", "text": "usinas_total", "type": "number" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "table",
+      "title": "Maiores cortes do SIN (top 15)",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 4 },
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "infinity-restricao-ons" },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": {},
+      "targets": [
+        {
+          "refId": "A",
+          "type": "json",
+          "source": "url",
+          "format": "table",
+          "parser": "backend",
+          "url": "$api_base/api/restricao?fonte=$fonte&data=$data&usina=$usina",
+          "url_options": { "method": "GET" },
+          "root_selector": "top",
+          "columns": [
+            { "selector": "usina", "text": "Usina", "type": "string" },
+            { "selector": "estado", "text": "Estado", "type": "string" },
+            { "selector": "corte_mwh", "text": "Corte (MWh)", "type": "number" },
+            { "selector": "perda_pct", "text": "Perda (%)", "type": "number" },
+            { "selector": "horas_restritas", "text": "Horas restritas", "type": "number" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "table",
+      "title": "Usinas monitoradas",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 4 },
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "infinity-restricao-ons" },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": {},
+      "targets": [
+        {
+          "refId": "A",
+          "type": "json",
+          "source": "url",
+          "format": "table",
+          "parser": "backend",
+          "url": "$api_base/api/restricao?fonte=$fonte&data=$data&usina=$usina",
+          "url_options": { "method": "GET" },
+          "root_selector": "monitoradas",
+          "columns": [
+            { "selector": "usina", "text": "Usina", "type": "string" },
+            { "selector": "estado", "text": "Estado", "type": "string" },
+            { "selector": "corte_mwh", "text": "Corte (MWh)", "type": "number" },
+            { "selector": "perda_pct", "text": "Perda (%)", "type": "number" },
+            { "selector": "horas_restritas", "text": "Horas restritas", "type": "number" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Serie semi-horaria: geracao x referencia x corte (MW)",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 13 },
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "infinity-restricao-ons" },
+      "fieldConfig": { "defaults": { "unit": "none" }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "json",
+          "source": "url",
+          "format": "timeseries",
+          "parser": "backend",
+          "url": "$api_base/api/serie?fonte=$fonte&data=$data&usina=$usina",
+          "url_options": { "method": "GET" },
+          "root_selector": "pontos",
+          "columns": [
+            { "selector": "instante", "text": "Time", "type": "timestamp", "timestampFormat": "YYYY-MM-DD HH:mm:ss" },
+            { "selector": "geracao_mw", "text": "Geracao (MW)", "type": "number" },
+            { "selector": "referencia_mw", "text": "Referencia (MW)", "type": "number" },
+            { "selector": "corte_mw", "text": "Corte (MW)", "type": "number" }
+          ]
+        }
+      ]
+    }
+  ]
+}
